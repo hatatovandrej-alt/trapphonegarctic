@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Broken Phone Art</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+
+        <!-- ========== ГЛАВНЫЙ ЭКРАН ========== -->
+        <section id="screen-home" class="screen active">
+            <div class="home-container">
+                <div class="logo">
+                    <h1>🎨 Broken Phone Art</h1>
+                    <p class="subtitle">Рисуй. Угадывай. Умирай со смеху.</p>
+                </div>
+
+                <div class="name-input">
+                    <input type="text" id="player-name" placeholder="Твоё имя"
+                           maxlength="15" autocomplete="off">
+                </div>
+
+                <div class="home-buttons">
+                    <button id="btn-create" class="btn btn-primary btn-large">
+                        🏠 Создать комнату
+                    </button>
+                    <div class="join-section">
+                        <input type="text" id="room-code-input" placeholder="Код комнаты"
+                               maxlength="5" style="text-transform: uppercase" autocomplete="off">
+                        <button id="btn-join" class="btn btn-secondary">
+                            🚪 Войти
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ЛОББИ ========== -->
+        <section id="screen-lobby" class="screen">
+            <div class="lobby-container">
+                <div class="room-header">
+                    <h2>Комната: <span id="room-code-display" class="room-code"></span></h2>
+                    <button id="btn-copy-code" class="btn btn-small" title="Копировать код">📋</button>
+                </div>
+
+                <div class="players-grid" id="players-list"></div>
+
+                <div class="settings-panel" id="settings-panel">
+                    <h3>⚙️ Настройки</h3>
+                    <div class="setting-row">
+                        <label>🎭 Режим</label>
+                        <select id="setting-mode">
+                            <option value="classic">Классика</option>
+                            <option value="drawings-only">Только рисунки</option>
+                            <option value="speedrun">Speedrun (15 сек)</option>
+                            <option value="chaos">Хаос 🎲</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <label>🎨 Время рисования</label>
+                        <input type="range" id="setting-draw-time" min="15" max="120" value="60" step="5">
+                        <span id="draw-time-value">60с</span>
+                    </div>
+                    <div class="setting-row">
+                        <label>✍️ Время на текст</label>
+                        <input type="range" id="setting-guess-time" min="10" max="90" value="45" step="5">
+                        <span id="guess-time-value">45с</span>
+                    </div>
+                    <div class="setting-row">
+                        <label>🎲 Модификаторы</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="setting-modifiers">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="btn-start-game" class="btn btn-primary btn-large">
+                    🚀 Начать игру
+                </button>
+                <p id="lobby-status" class="status-text"></p>
+            </div>
+        </section>
+
+        <!-- ========== ИГРА: ВВОД ФРАЗЫ ========== -->
+        <section id="screen-write" class="screen">
+            <div class="game-container">
+                <div class="game-header">
+                    <div class="step-indicator">
+                        <span id="step-number"></span>
+                    </div>
+                    <div class="timer" id="timer-write">
+                        <div class="timer-circle">
+                            <span id="timer-write-value">60</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-write"></div>
+                    </div>
+                </div>
+
+                <div id="write-prompt" class="prompt"></div>
+
+                <!-- Если угадываем рисунок — показываем его -->
+                <div id="reference-image-container" class="reference-container" style="display:none">
+                    <img id="reference-image" src="" alt="Рисунок">
+                </div>
+
+                <div class="write-area">
+                    <input type="text" id="phrase-input" placeholder="Опиши что видишь..."
+                           maxlength="100" autocomplete="off">
+                    <button id="btn-submit-phrase" class="btn btn-primary">
+                        ✅ Отправить
+                    </button>
+                </div>
+
+                <div id="submission-status" class="submission-status"></div>
+            </div>
+        </section>
+
+        <!-- ========== ИГРА: РИСОВАНИЕ ========== -->
+        <section id="screen-draw" class="screen">
+            <div class="game-container">
+                <div class="game-header">
+                    <div class="step-indicator">
+                        <span id="step-number-draw"></span>
+                    </div>
+                    <div class="timer" id="timer-draw">
+                        <div class="timer-circle">
+                            <span id="timer-draw-value">60</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-draw"></div>
+                    </div>
+                </div>
+
+                <div id="draw-prompt" class="prompt">
+                    <p>Нарисуй: <strong id="phrase-to-draw"></strong></p>
+                </div>
+
+                <div id="modifier-banner" class="modifier-banner" style="display:none">
+                    <span id="modifier-icon"></span>
+                    <span id="modifier-text"></span>
+                </div>
+
+                <div class="canvas-wrapper">
+                    <canvas id="drawing-canvas" width="600" height="450"></canvas>
+                </div>
+
+                <div class="toolbar">
+                    <div class="tool-group colors">
+                        <button class="color-btn active" data-color="#000000"
+                                style="background:#000000"></button>
+                        <button class="color-btn" data-color="#FF0000"
+                                style="background:#FF0000"></button>
+                        <button class="color-btn" data-color="#FF6600"
+                                style="background:#FF6600"></button>
+                        <button class="color-btn" data-color="#FFD700"
+                                style="background:#FFD700"></button>
+                        <button class="color-btn" data-color="#00CC00"
+                                style="background:#00CC00"></button>
+                        <button class="color-btn" data-color="#0066FF"
+                                style="background:#0066FF"></button>
+                        <button class="color-btn" data-color="#9933FF"
+                                style="background:#9933FF"></button>
+                        <button class="color-btn" data-color="#FF69B4"
+                                style="background:#FF69B4"></button>
+                        <button class="color-btn" data-color="#8B4513"
+                                style="background:#8B4513"></button>
+                        <button class="color-btn" data-color="#FFFFFF"
+                                style="background:#FFFFFF; border:2px solid #ccc"></button>
+                    </div>
+
+                    <div class="tool-group sizes">
+                        <button class="size-btn active" data-size="3">
+                            <span style="width:6px;height:6px"></span>
+                        </button>
+                        <button class="size-btn" data-size="8">
+                            <span style="width:12px;height:12px"></span>
+                        </button>
+                        <button class="size-btn" data-size="15">
+                            <span style="width:18px;height:18px"></span>
+                        </button>
+                        <button class="size-btn" data-size="25">
+                            <span style="width:24px;height:24px"></span>
+                        </button>
+                    </div>
+
+                    <div class="tool-group actions">
+                        <button id="btn-eraser" class="tool-btn" title="Ластик">🧹</button>
+                        <button id="btn-undo" class="tool-btn" title="Отменить">↩️</button>
+                        <button id="btn-clear" class="tool-btn" title="Очистить">🗑️</button>
+                        <button id="btn-fill" class="tool-btn" title="Заливка">🪣</button>
+                    </div>
+                </div>
+
+                <button id="btn-submit-drawing" class="btn btn-primary">
+                    ✅ Готово!
+                </button>
+
+                <div id="submission-status-draw" class="submission-status"></div>
+            </div>
+        </section>
+
+        <!-- ========== ОЖИДАНИЕ ========== -->
+        <section id="screen-waiting" class="screen">
+            <div class="waiting-container">
+                <div class="spinner"></div>
+                <h2>Ждём остальных...</h2>
+                <p id="waiting-progress">0 / 0 отправили</p>
+            </div>
+        </section>
+
+        <!-- ========== ПОКАЗ РЕЗУЛЬТАТОВ ========== -->
+        <section id="screen-results" class="screen">
+            <div class="results-container">
+                <h2>🎉 Результаты!</h2>
+
+                <div id="chain-viewer" class="chain-viewer">
+                    <div class="chain-nav">
+                        <button id="btn-prev-chain" class="btn btn-small">⬅️</button>
+                        <span id="chain-counter">Цепочка 1 / 4</span>
+                        <button id="btn-next-chain" class="btn btn-small">➡️</button>
+                    </div>
+
+                    <div id="chain-steps" class="chain-steps"></div>
+
+                    <div class="reaction-bar" id="reaction-bar">
+                        <button class="reaction-btn" data-emoji="😂">😂</button>
+                        <button class="reaction-btn" data-emoji="🔥">🔥</button>
+                        <button class="reaction-btn" data-emoji="💀">💀</button>
+                        <button class="reaction-btn" data-emoji="😍">😍</button>
+                        <button class="reaction-btn" data-emoji="🤔">🤔</button>
+                        <button class="reaction-btn" data-emoji="👏">👏</button>
+                    </div>
+                </div>
+
+                <!-- АЧИВКИ -->
+                <div id="achievements-section" class="achievements-section">
+                    <h3>🏆 Награды</h3>
+                    <div id="achievements-list" class="achievements-list"></div>
+                </div>
+
+                <div class="results-buttons">
+                    <button id="btn-play-again" class="btn btn-primary btn-large">
+                        🔄 Ещё раунд!
+                    </button>
+                    <button id="btn-save-gallery" class="btn btn-secondary">
+                        💾 Сохранить в галерею
+                    </button>
+                    <button id="btn-download-chain" class="btn btn-secondary">
+                        📥 Скачать цепочку
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== УВЕДОМЛЕНИЯ ========== -->
+        <div id="toast-container" class="toast-container"></div>
+
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/sounds.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
