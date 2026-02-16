@@ -1,271 +1,1240 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎨 Broken Phone Art</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <div id="app">
+/* ========== ШРИФТЫ ========== */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
 
-        <!-- ========== ГЛАВНЫЙ ЭКРАН ========== -->
-        <section id="screen-home" class="screen active">
-            <div class="home-container">
-                <div class="logo">
-                    <h1>🎨 Broken Phone Art</h1>
-                    <p class="subtitle">Рисуй. Угадывай. Умирай со смеху.</p>
-                </div>
+/* ========== ПЕРЕМЕННЫЕ ========== */
+:root {
+    --bg-primary: #1a0a2e;
+    --bg-secondary: #2d1b69;
+    --bg-card: #3b2680;
+    --bg-card-hover: #4a32a0;
+    --text-primary: #ffffff;
+    --text-secondary: #b8a9d4;
+    --accent: #ff6b9d;
+    --accent-hover: #ff85b1;
+    --accent2: #00e5ff;
+    --accent3: #ffe156;
+    --accent4: #7c4dff;
+    --green: #69f0ae;
+    --orange: #ffab40;
+    --red: #ff5252;
+    --pink: #ff4081;
+    --radius: 20px;
+    --radius-sm: 12px;
+    --radius-xs: 8px;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 30px rgba(124, 77, 255, 0.3);
+    --shadow-btn: 0 6px 0 rgba(0, 0, 0, 0.3);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-main: 'Nunito', sans-serif;
+    --font-title: 'Fredoka One', cursive;
+}
 
-                <div class="name-input">
-                    <input type="text" id="player-name" placeholder="Твоё имя"
-                           maxlength="15" autocomplete="off">
-                </div>
+/* ========== RESET ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-                <div class="home-buttons">
-                    <button id="btn-create" class="btn btn-primary btn-large">
-                        🏠 Создать комнату
-                    </button>
-                    <div class="join-section">
-                        <input type="text" id="room-code-input" placeholder="Код комнаты"
-                               maxlength="5" style="text-transform: uppercase" autocomplete="off">
-                        <button id="btn-join" class="btn btn-secondary">
-                            🚪 Войти
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+body {
+    font-family: var(--font-main);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+        radial-gradient(ellipse at 10% 20%, rgba(124, 77, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(255, 107, 157, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(0, 229, 255, 0.08) 0%, transparent 50%);
+}
 
-        <!-- ========== ЛОББИ ========== -->
-        <section id="screen-lobby" class="screen">
-            <div class="lobby-container">
-                <div class="room-header">
-                    <h2>Комната: <span id="room-code-display" class="room-code"></span></h2>
-                    <button id="btn-copy-code" class="btn btn-small" title="Копировать код">📋</button>
-                </div>
+/* Фоновые декоративные элементы */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.15), transparent),
+        radial-gradient(2px 2px at 40% 70%, rgba(255, 255, 255, 0.1), transparent),
+        radial-gradient(2px 2px at 60% 20%, rgba(255, 255, 255, 0.12), transparent),
+        radial-gradient(2px 2px at 80% 50%, rgba(255, 255, 255, 0.08), transparent),
+        radial-gradient(3px 3px at 10% 80%, rgba(124, 77, 255, 0.3), transparent),
+        radial-gradient(3px 3px at 70% 10%, rgba(255, 107, 157, 0.3), transparent),
+        radial-gradient(3px 3px at 90% 90%, rgba(0, 229, 255, 0.3), transparent),
+        radial-gradient(2px 2px at 30% 50%, rgba(255, 225, 86, 0.2), transparent),
+        radial-gradient(2px 2px at 50% 90%, rgba(105, 240, 174, 0.2), transparent);
+    pointer-events: none;
+    z-index: 0;
+}
 
-                <div class="players-grid" id="players-list"></div>
+/* ========== ЭКРАНЫ ========== */
+.screen {
+    display: none;
+    min-height: 100vh;
+    padding: 20px;
+    animation: screenIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+}
 
-                <div class="settings-panel" id="settings-panel">
-                    <h3>⚙️ Настройки</h3>
-                    <div class="setting-row">
-                        <label>🎭 Режим</label>
-                        <select id="setting-mode">
-                            <option value="classic">Классика</option>
-                            <option value="drawings-only">Только рисунки</option>
-                            <option value="speedrun">Speedrun (15 сек)</option>
-                            <option value="chaos">Хаос 🎲</option>
-                        </select>
-                    </div>
-                    <div class="setting-row">
-                        <label>🎨 Время рисования</label>
-                        <input type="range" id="setting-draw-time" min="15" max="120" value="60" step="5">
-                        <span id="draw-time-value">60с</span>
-                    </div>
-                    <div class="setting-row">
-                        <label>✍️ Время на текст</label>
-                        <input type="range" id="setting-guess-time" min="10" max="90" value="45" step="5">
-                        <span id="guess-time-value">45с</span>
-                    </div>
-                    <div class="setting-row">
-                        <label>🎲 Модификаторы</label>
-                        <label class="toggle">
-                            <input type="checkbox" id="setting-modifiers">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
+.screen.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-                <button id="btn-start-game" class="btn btn-primary btn-large">
-                    🚀 Начать игру
-                </button>
-                <p id="lobby-status" class="status-text"></p>
-            </div>
-        </section>
+@keyframes screenIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
 
-        <!-- ========== ИГРА: ВВОД ФРАЗЫ ========== -->
-        <section id="screen-write" class="screen">
-            <div class="game-container">
-                <div class="game-header">
-                    <div class="step-indicator">
-                        <span id="step-number"></span>
-                    </div>
-                    <div class="timer" id="timer-write">
-                        <div class="timer-circle">
-                            <span id="timer-write-value">60</span>
-                        </div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-write"></div>
-                    </div>
-                </div>
+/* ========== КНОПКИ ========== */
+.btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 800;
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    box-shadow: var(--shadow-btn);
+}
 
-                <div id="write-prompt" class="prompt"></div>
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 0 rgba(0, 0, 0, 0.3);
+}
 
-                <!-- Если угадываем рисунок — показываем его -->
-                <div id="reference-image-container" class="reference-container" style="display:none">
-                    <img id="reference-image" src="" alt="Рисунок">
-                </div>
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
 
-                <div class="write-area">
-                    <input type="text" id="phrase-input" placeholder="Опиши что видишь..."
-                           maxlength="100" autocomplete="off">
-                    <button id="btn-submit-phrase" class="btn btn-primary">
-                        ✅ Отправить
-                    </button>
-                </div>
+.btn-primary {
+    background: linear-gradient(180deg, var(--accent), #e5507a);
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
 
-                <div id="submission-status" class="submission-status"></div>
-            </div>
-        </section>
+.btn-primary:hover {
+    background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+}
 
-        <!-- ========== ИГРА: РИСОВАНИЕ ========== -->
-        <section id="screen-draw" class="screen">
-            <div class="game-container">
-                <div class="game-header">
-                    <div class="step-indicator">
-                        <span id="step-number-draw"></span>
-                    </div>
-                    <div class="timer" id="timer-draw">
-                        <div class="timer-circle">
-                            <span id="timer-draw-value">60</span>
-                        </div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-draw"></div>
-                    </div>
-                </div>
+.btn-secondary {
+    background: linear-gradient(180deg, var(--bg-card), #2d1b69);
+    color: var(--text-primary);
+    border: 3px solid rgba(255, 255, 255, 0.15);
+}
 
-                <div id="draw-prompt" class="prompt">
-                    <p>Нарисуй: <strong id="phrase-to-draw"></strong></p>
-                </div>
+.btn-secondary:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+}
 
-                <div id="modifier-banner" class="modifier-banner" style="display:none">
-                    <span id="modifier-icon"></span>
-                    <span id="modifier-text"></span>
-                </div>
+.btn-success {
+    background: linear-gradient(180deg, var(--green), #4caf50);
+    color: #1a1a2e;
+    text-shadow: none;
+}
 
-                <div class="canvas-wrapper">
-                    <canvas id="drawing-canvas" width="600" height="450"></canvas>
-                </div>
+.btn-large {
+    padding: 18px 48px;
+    font-size: 20px;
+    border-radius: var(--radius);
+    letter-spacing: 2px;
+}
 
-                <div class="toolbar">
-                    <div class="tool-group colors">
-                        <button class="color-btn active" data-color="#000000"
-                                style="background:#000000"></button>
-                        <button class="color-btn" data-color="#FF0000"
-                                style="background:#FF0000"></button>
-                        <button class="color-btn" data-color="#FF6600"
-                                style="background:#FF6600"></button>
-                        <button class="color-btn" data-color="#FFD700"
-                                style="background:#FFD700"></button>
-                        <button class="color-btn" data-color="#00CC00"
-                                style="background:#00CC00"></button>
-                        <button class="color-btn" data-color="#0066FF"
-                                style="background:#0066FF"></button>
-                        <button class="color-btn" data-color="#9933FF"
-                                style="background:#9933FF"></button>
-                        <button class="color-btn" data-color="#FF69B4"
-                                style="background:#FF69B4"></button>
-                        <button class="color-btn" data-color="#8B4513"
-                                style="background:#8B4513"></button>
-                        <button class="color-btn" data-color="#FFFFFF"
-                                style="background:#FFFFFF; border:2px solid #ccc"></button>
-                    </div>
+.btn-small {
+    padding: 10px 18px;
+    font-size: 14px;
+    border-radius: var(--radius-xs);
+}
 
-                    <div class="tool-group sizes">
-                        <button class="size-btn active" data-size="3">
-                            <span style="width:6px;height:6px"></span>
-                        </button>
-                        <button class="size-btn" data-size="8">
-                            <span style="width:12px;height:12px"></span>
-                        </button>
-                        <button class="size-btn" data-size="15">
-                            <span style="width:18px;height:18px"></span>
-                        </button>
-                        <button class="size-btn" data-size="25">
-                            <span style="width:24px;height:24px"></span>
-                        </button>
-                    </div>
+/* Кнопка с иконкой */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
 
-                    <div class="tool-group actions">
-                        <button id="btn-eraser" class="tool-btn" title="Ластик">🧹</button>
-                        <button id="btn-undo" class="tool-btn" title="Отменить">↩️</button>
-                        <button id="btn-clear" class="tool-btn" title="Очистить">🗑️</button>
-                        <button id="btn-fill" class="tool-btn" title="Заливка">🪣</button>
-                    </div>
-                </div>
+/* ========== ИНПУТЫ ========== */
+input[type="text"], select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    padding: 16px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 18px;
+    font-family: var(--font-main);
+    font-weight: 700;
+    outline: none;
+    transition: var(--transition);
+    width: 100%;
+    backdrop-filter: blur(10px);
+}
 
-                <button id="btn-submit-drawing" class="btn btn-primary">
-                    ✅ Готово!
-                </button>
+input[type="text"]:focus, select:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 25px rgba(0, 229, 255, 0.3), inset 0 0 15px rgba(0, 229, 255, 0.05);
+    background: rgba(255, 255, 255, 0.12);
+}
 
-                <div id="submission-status-draw" class="submission-status"></div>
-            </div>
-        </section>
+input[type="text"]::placeholder {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
 
-        <!-- ========== ОЖИДАНИЕ ========== -->
-        <section id="screen-waiting" class="screen">
-            <div class="waiting-container">
-                <div class="spinner"></div>
-                <h2>Ждём остальных...</h2>
-                <p id="waiting-progress">0 / 0 отправили</p>
-            </div>
-        </section>
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
 
-        <!-- ========== ПОКАЗ РЕЗУЛЬТАТОВ ========== -->
-        <section id="screen-results" class="screen">
-            <div class="results-container">
-                <h2>🎉 Результаты!</h2>
+select option {
+    background: var(--bg-secondary);
+    color: white;
+}
 
-                <div id="chain-viewer" class="chain-viewer">
-                    <div class="chain-nav">
-                        <button id="btn-prev-chain" class="btn btn-small">⬅️</button>
-                        <span id="chain-counter">Цепочка 1 / 4</span>
-                        <button id="btn-next-chain" class="btn btn-small">➡️</button>
-                    </div>
+/* ========== ГЛАВНЫЙ ЭКРАН ========== */
+.home-container {
+    text-align: center;
+    max-width: 480px;
+    width: 100%;
+}
 
-                    <div id="chain-steps" class="chain-steps"></div>
+.logo {
+    margin-bottom: 50px;
+}
 
-                    <div class="reaction-bar" id="reaction-bar">
-                        <button class="reaction-btn" data-emoji="😂">😂</button>
-                        <button class="reaction-btn" data-emoji="🔥">🔥</button>
-                        <button class="reaction-btn" data-emoji="💀">💀</button>
-                        <button class="reaction-btn" data-emoji="😍">😍</button>
-                        <button class="reaction-btn" data-emoji="🤔">🤔</button>
-                        <button class="reaction-btn" data-emoji="👏">👏</button>
-                    </div>
-                </div>
+.logo h1 {
+    font-family: var(--font-title);
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3), var(--accent2), var(--green));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite, logoFloat 3s ease-in-out infinite;
+    filter: drop-shadow(0 4px 8px rgba(255, 107, 157, 0.4));
+    line-height: 1.2;
+}
 
-                <!-- АЧИВКИ -->
-                <div id="achievements-section" class="achievements-section">
-                    <h3>🏆 Награды</h3>
-                    <div id="achievements-list" class="achievements-list"></div>
-                </div>
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
 
-                <div class="results-buttons">
-                    <button id="btn-play-again" class="btn btn-primary btn-large">
-                        🔄 Ещё раунд!
-                    </button>
-                    <button id="btn-save-gallery" class="btn btn-secondary">
-                        💾 Сохранить в галерею
-                    </button>
-                    <button id="btn-download-chain" class="btn btn-secondary">
-                        📥 Скачать цепочку
-                    </button>
-                </div>
-            </div>
-        </section>
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-8px) rotate(-1deg); }
+    75% { transform: translateY(-4px) rotate(1deg); }
+}
 
-        <!-- ========== УВЕДОМЛЕНИЯ ========== -->
-        <div id="toast-container" class="toast-container"></div>
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
 
-    </div>
+/* Декоративные элементы вокруг лого */
+.logo::before {
+    content: '✏️ 🎨 🖌️';
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 16px;
+    animation: iconsFloat 2s ease-in-out infinite alternate;
+    letter-spacing: 20px;
+}
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="js/canvas.js"></script>
-    <script src="js/sounds.js"></script>
-    <script src="js/app.js"></script>
-</body>
-</html>
+@keyframes iconsFloat {
+    from { transform: translateY(0) scale(1); }
+    to { transform: translateY(-10px) scale(1.1); }
+}
+
+.name-input {
+    margin-bottom: 30px;
+}
+
+.home-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.join-section {
+    display: flex;
+    gap: 12px;
+}
+
+.join-section input {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+}
+
+/* ========== ЛОББИ ========== */
+.lobby-container {
+    max-width: 650px;
+    width: 100%;
+    text-align: center;
+}
+
+.room-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 35px;
+}
+
+.room-header h2 {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+}
+
+.room-code {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent3);
+    letter-spacing: 8px;
+    background: rgba(255, 225, 86, 0.1);
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-title);
+    border: 3px solid rgba(255, 225, 86, 0.3);
+    text-shadow: 0 0 20px rgba(255, 225, 86, 0.5);
+    animation: codeGlow 2s ease infinite alternate;
+}
+
+@keyframes codeGlow {
+    from { box-shadow: 0 0 10px rgba(255, 225, 86, 0.2); }
+    to { box-shadow: 0 0 25px rgba(255, 225, 86, 0.4); }
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 14px;
+    margin-bottom: 35px;
+}
+
+.player-card {
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    border-radius: var(--radius);
+    padding: 22px 14px;
+    text-align: center;
+    transition: var(--transition);
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    animation: playerPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.player-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.player-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.player-card:hover::before {
+    opacity: 1;
+}
+
+.player-card.host {
+    border-color: var(--accent3);
+    background: linear-gradient(145deg, rgba(255, 225, 86, 0.15), var(--bg-card));
+}
+
+.player-card.host::before {
+    opacity: 1;
+    background: linear-gradient(90deg, var(--accent3), var(--orange));
+}
+
+@keyframes playerPop {
+    from { transform: scale(0) rotate(-10deg); }
+    60% { transform: scale(1.1) rotate(3deg); }
+    to { transform: scale(1) rotate(0); }
+}
+
+.player-card .avatar {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    display: block;
+    animation: avatarBounce 2s ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes avatarBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.player-card .name {
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+}
+
+.player-card .host-badge {
+    font-size: 12px;
+    color: var(--accent3);
+    margin-top: 6px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ========== НАСТРОЙКИ ========== */
+.settings-panel {
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 28px;
+    text-align: left;
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+.settings-panel h3 {
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: var(--font-title);
+    font-size: 1.3rem;
+    color: var(--accent2);
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-row label {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.setting-row select {
+    width: auto;
+    min-width: 170px;
+    font-size: 15px;
+    padding: 10px 16px;
+}
+
+input[type="range"] {
+    width: 130px;
+    accent-color: var(--accent2);
+    height: 6px;
+}
+
+/* Toggle Switch */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 56px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    transition: var(--transition);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    left: 3px;
+    bottom: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.toggle input:checked + .toggle-slider {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+}
+
+.toggle input:checked + .toggle-slider::before {
+    transform: translateX(26px);
+}
+
+/* ========== GAME HEADER ========== */
+.game-container {
+    max-width: 720px;
+    width: 100%;
+    text-align: center;
+}
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    padding: 16px 24px;
+    border-radius: var(--radius);
+    border: 3px solid rgba(255, 255, 255, 0.08);
+}
+
+.step-indicator {
+    font-size: 14px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Таймер */
+.timer-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--bg-card) 0%, var(--bg-secondary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    font-family: var(--font-title);
+    border: 4px solid var(--accent2);
+    transition: var(--transition);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.timer-circle.warning {
+    border-color: var(--orange);
+    color: var(--orange);
+    box-shadow: 0 0 25px rgba(255, 171, 64, 0.4);
+    animation: timerPulse 0.6s ease infinite;
+}
+
+.timer-circle.danger {
+    border-color: var(--red);
+    color: var(--red);
+    box-shadow: 0 0 30px rgba(255, 82, 82, 0.5);
+    animation: timerPulse 0.3s ease infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* Прогресс-бар */
+.progress-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3));
+    background-size: 200% 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+    width: 0%;
+    animation: progressShimmer 2s ease infinite;
+}
+
+@keyframes progressShimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* ========== ПРОМПТ ========== */
+.prompt {
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 24px;
+    font-size: 18px;
+    font-weight: 700;
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+}
+
+.prompt::before {
+    content: '💭';
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    font-size: 30px;
+}
+
+.prompt strong {
+    color: var(--accent3);
+    font-size: 26px;
+    font-family: var(--font-title);
+    text-shadow: 0 0 20px rgba(255, 225, 86, 0.4);
+    display: block;
+    margin-top: 8px;
+}
+
+/* Модификатор */
+.modifier-banner {
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.3), rgba(255, 107, 157, 0.3));
+    border: 3px solid var(--accent4);
+    border-radius: var(--radius-sm);
+    padding: 14px 24px;
+    margin-bottom: 18px;
+    font-weight: 800;
+    font-size: 16px;
+    animation: modifierGlow 2s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+@keyframes modifierGlow {
+    0%, 100% { box-shadow: 0 0 15px rgba(124, 77, 255, 0.3); }
+    50% { box-shadow: 0 0 35px rgba(124, 77, 255, 0.6); }
+}
+
+/* Референс */
+.reference-container {
+    margin-bottom: 24px;
+}
+
+.reference-container img {
+    max-width: 100%;
+    max-height: 350px;
+    border-radius: var(--radius);
+    border: 4px solid var(--bg-card);
+    box-shadow: var(--shadow);
+}
+
+/* Поле ввода */
+.write-area {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.write-area input {
+    flex: 1;
+    font-size: 20px;
+}
+
+/* ========== ХОЛСТ ========== */
+.canvas-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+    display: inline-block;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow), 0 0 40px rgba(124, 77, 255, 0.15);
+    border: 4px solid var(--bg-card);
+}
+
+#drawing-canvas {
+    background: white;
+    cursor: crosshair;
+    display: block;
+    max-width: 100%;
+    touch-action: none;
+}
+
+/* Тулбар */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: center;
+    margin-bottom: 22px;
+    padding: 18px;
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    border-radius: var(--radius);
+    border: 3px solid rgba(255, 255, 255, 0.08);
+}
+
+.tool-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+}
+
+.color-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.color-btn:hover {
+    transform: scale(1.25);
+}
+
+.color-btn.active {
+    border-color: white;
+    transform: scale(1.2);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.size-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.size-btn span {
+    background: var(--text-primary);
+    border-radius: 50%;
+    display: block;
+}
+
+.size-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.size-btn.active {
+    border-color: var(--accent2);
+    background: rgba(0, 229, 255, 0.15);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
+.tool-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-xs);
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    font-size: 20px;
+    transition: var(--transition);
+}
+
+.tool-btn:hover {
+    border-color: var(--accent2);
+    transform: translateY(-3px);
+    background: rgba(0, 229, 255, 0.1);
+}
+
+.tool-btn.active {
+    border-color: var(--accent);
+    background: rgba(255, 107, 157, 0.2);
+    box-shadow: 0 0 12px rgba(255, 107, 157, 0.3);
+}
+
+/* ========== ОЖИДАНИЕ ========== */
+.waiting-container {
+    text-align: center;
+}
+
+.waiting-container h2 {
+    font-family: var(--font-title);
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.spinner {
+    width: 70px;
+    height: 70px;
+    border: 5px solid var(--bg-card);
+    border-top: 5px solid var(--accent2);
+    border-right: 5px solid var(--accent);
+    border-radius: 50%;
+    animation: spinnerSpin 1s linear infinite;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+@keyframes spinnerSpin {
+    to { transform: rotate(360deg); }
+}
+
+.submission-status {
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+/* ========== РЕЗУЛЬТАТЫ ========== */
+.results-container {
+    max-width: 850px;
+    width: 100%;
+    text-align: center;
+}
+
+.results-container h2 {
+    font-family: var(--font-title);
+    font-size: 3rem;
+    margin-bottom: 35px;
+    background: linear-gradient(135deg, var(--accent3), var(--accent), var(--accent2));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s ease infinite;
+    filter: drop-shadow(0 4px 8px rgba(255, 107, 157, 0.3));
+}
+
+/* Навигация */
+.chain-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+#chain-counter {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: var(--font-title);
+    color: var(--accent2);
+}
+
+/* Шаги цепочки */
+.chain-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 24px;
+}
+
+.chain-step {
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    animation: revealStep 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 4px;
+}
+
+@keyframes revealStep {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9) rotateX(10deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotateX(0);
+    }
+}
+
+.chain-step .step-author {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.chain-step .step-phrase {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--accent3);
+    padding: 14px;
+    font-family: var(--font-title);
+    text-shadow: 0 0 20px rgba(255, 225, 86, 0.3);
+}
+
+.chain-step .step-image img {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: var(--radius-sm);
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow);
+}
+
+.chain-step .step-arrow {
+    font-size: 32px;
+    margin: 10px 0;
+    color: var(--text-secondary);
+    animation: arrowBounce 1s ease infinite;
+}
+
+@keyframes arrowBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+}
+
+.chain-step.timeout {
+    opacity: 0.5;
+    border: 3px dashed var(--red);
+}
+
+/* Реакции */
+.reaction-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.reaction-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    font-size: 26px;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.reaction-btn:hover {
+    transform: scale(1.3) translateY(-3px);
+    border-color: var(--accent2);
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 0 15px rgba(0, 229, 255, 0.3);
+}
+
+.reaction-btn:active {
+    transform: scale(1.1) translateY(1px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Ачивки */
+.achievements-section {
+    margin-bottom: 35px;
+}
+
+.achievements-section h3 {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    color: var(--accent3);
+    margin-bottom: 18px;
+}
+
+.achievements-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+}
+
+.achievement-card {
+    background: linear-gradient(145deg, var(--bg-card), rgba(124, 77, 255, 0.2));
+    border: 3px solid var(--accent4);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: achievementPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 220px;
+    box-shadow: 0 0 20px rgba(124, 77, 255, 0.2);
+}
+
+@keyframes achievementPop {
+    0% { transform: scale(0) rotate(-15deg); }
+    60% { transform: scale(1.1) rotate(3deg); }
+    100% { transform: scale(1) rotate(0); }
+}
+
+.achievement-card .ach-icon {
+    font-size: 2.5rem;
+    animation: achievementIconBounce 1s ease infinite;
+}
+
+@keyframes achievementIconBounce {
+    0%, 100% { transform: scale(1) rotate(0); }
+    25% { transform: scale(1.2) rotate(-5deg); }
+    75% { transform: scale(1.1) rotate(5deg); }
+}
+
+.achievement-card .ach-info .ach-player {
+    font-weight: 800;
+    font-size: 15px;
+}
+
+.achievement-card .ach-info .ach-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Кнопки результатов */
+.results-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+}
+
+/* ========== ТОСТЫ ========== */
+.toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+    border-left: 5px solid var(--accent2);
+    padding: 16px 22px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+    animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), toastOut 0.3s ease 2.7s forwards;
+    max-width: 320px;
+    font-weight: 700;
+    font-size: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.toast.error {
+    border-left-color: var(--red);
+}
+
+.toast.success {
+    border-left-color: var(--green);
+}
+
+@keyframes toastIn {
+    from { transform: translateX(120%) scale(0.8); opacity: 0; }
+    to { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes toastOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(120%); opacity: 0; }
+}
+
+/* ========== КОНФЕТТИ ========== */
+.confetti-piece {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    top: -12px;
+    animation: confettiFall 3s ease-in forwards;
+    z-index: 999;
+    border-radius: 2px;
+}
+
+@keyframes confettiFall {
+    0% { transform: rotate(0deg) scale(1); }
+    100% {
+        top: 110vh;
+        transform: rotate(1080deg) scale(0.5);
+    }
+}
+
+/* ========== СТАТУС ЛОББИ ========== */
+.status-text {
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 15px;
+    margin-top: 16px;
+    animation: statusPulse 2s ease infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* ========== СКРОЛЛБАР ========== */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-card);
+    border-radius: 5px;
+    border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent4);
+}
+
+/* ========== ВЫДЕЛЕНИЕ ТЕКСТА ========== */
+::selection {
+    background: rgba(255, 107, 157, 0.3);
+    color: white;
+}
+
+/* ========== АДАПТИВ ========== */
+@media (max-width: 768px) {
+    .logo h1 {
+        font-size: 2.2rem;
+    }
+
+    .logo::before {
+        font-size: 1.5rem;
+        letter-spacing: 10px;
+    }
+
+    #drawing-canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .toolbar {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .tool-group {
+        padding: 4px 8px;
+    }
+
+    .color-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .game-header {
+        flex-wrap: wrap;
+        padding: 12px;
+    }
+
+    .join-section {
+        flex-direction: column;
+    }
+
+    .results-buttons {
+        flex-direction: column;
+    }
+
+    .settings-panel .setting-row {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .room-code {
+        font-size: 1.6rem;
+        letter-spacing: 5px;
+    }
+
+    .prompt strong {
+        font-size: 20px;
+    }
+
+    .chain-step .step-phrase {
+        font-size: 18px;
+    }
+
+    .btn-large {
+        padding: 14px 32px;
+        font-size: 16px;
+    }
+
+    .results-container h2 {
+        font-size: 2rem;
+    }
+
+    .players-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+    }
+
+    .player-card {
+        padding: 16px 10px;
+    }
+
+    .player-card .avatar {
+        font-size: 2.2rem;
+    }
+
+    .achievement-card {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo h1 {
+        font-size: 1.8rem;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .screen {
+        padding: 12px;
+    }
+
+    .timer-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+    }
+}
